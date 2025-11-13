@@ -23,7 +23,7 @@ public:
 	/// @param value The starting value for the semaphore.
 	/// @throw std::runtime_error if the semaphore could not be created.
 	explicit DispatchSemaphore(intptr_t value)
-	: semaphore_(dispatch_semaphore_create(value))
+	: semaphore_{dispatch_semaphore_create(value)}
 	{
 		if(!semaphore_)
 			throw std::runtime_error("Unable to create dispatch semaphore");
@@ -33,7 +33,7 @@ public:
 	/// @note The results of passing a null dispatch semaphore are undefined.
 	/// @param semaphore A dispatch semaphore.
 	explicit DispatchSemaphore(dispatch_semaphore_t _Nonnull semaphore) noexcept
-	: semaphore_(semaphore)
+	: semaphore_{semaphore}
 	{
 		assert(semaphore_ != nullptr);
 #if !__has_feature(objc_arc)
@@ -52,7 +52,7 @@ public:
 	/// Creates a semaphore from an existing semaphore.
 	/// @param other The semaphore to copy.
 	DispatchSemaphore(const DispatchSemaphore& other) noexcept
-	: DispatchSemaphore(other.semaphore_)
+	: DispatchSemaphore{other.semaphore_}
 	{}
 
 	/// Replaces this semaphore with an existing semaphore.
@@ -100,6 +100,34 @@ public:
 	///
 	/// If the resulting value is less than zero this function waits for a signal to occur before returning.
 	void wait() noexcept 			{ wait(DISPATCH_TIME_FOREVER); }
+
+	/// A semaphore scope guard that waits in the constructor and signals in the destructor.
+	class ScopeGuard final {
+	public:
+		/// Creates a scope guard and waits on the semaphore.
+		/// @param semaphore A semaphore.
+		explicit ScopeGuard(DispatchSemaphore& semaphore) noexcept
+		: semaphore_{semaphore}
+		{
+			semaphore_.wait();
+		}
+
+		/// Signals the semaphore.
+		~ScopeGuard() noexcept
+		{
+			semaphore_.signal();
+		}
+
+		ScopeGuard(const ScopeGuard&) = delete;
+		ScopeGuard& operator=(const ScopeGuard&) = delete;
+
+		ScopeGuard(ScopeGuard&&) = delete;
+		ScopeGuard& operator=(ScopeGuard&&) = delete;
+
+	private:
+		/// A reference to the semaphore.
+		DispatchSemaphore& semaphore_;
+	};
 
 	// MARK: std::counting_semaphore compatibility
 
