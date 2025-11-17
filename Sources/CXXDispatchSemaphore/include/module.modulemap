@@ -1,5 +1,5 @@
 module CXXDispatchSemaphore {
 	requires cplusplus11
-	header "SFBDispatchSemaphore.hpp"
+	header "CXXDispatchSemaphore/DispatchSemaphore.hpp"
 	export *
 }
