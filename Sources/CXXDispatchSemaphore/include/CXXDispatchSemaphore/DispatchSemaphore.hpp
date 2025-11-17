@@ -12,7 +12,7 @@
 
 #import <dispatch/dispatch.h>
 
-namespace SFB {
+namespace CXXDispatchSemaphore {
 
 /// A dispatch_semaphore_t wrapper.
 class DispatchSemaphore final {
@@ -157,4 +157,4 @@ private:
 	dispatch_semaphore_t _Nonnull semaphore_{nullptr};
 };
 
-} /* namespace SFB */
+} /* namespace CXXDispatchSemaphore */
