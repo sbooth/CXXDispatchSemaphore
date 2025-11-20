@@ -60,15 +60,15 @@ public:
 	/// @return A reference to this.
 	DispatchSemaphore& operator=(const DispatchSemaphore& other) noexcept
 	{
-		if(this == &other)
-			return *this;
+		if(this != &other) {
 #if !__has_feature(objc_arc)
-		dispatch_release(semaphore_);
+			dispatch_release(semaphore_);
 #endif /* !__has_feature(objc_arc) */
-		semaphore_ = other.semaphore_;
+			semaphore_ = other.semaphore_;
 #if !__has_feature(objc_arc)
-		dispatch_retain(semaphore_);
+			dispatch_retain(semaphore_);
 #endif /* !__has_feature(objc_arc) */
+		}
 		return *this;
 	}
 
@@ -82,24 +82,20 @@ public:
 	/// If the resulting value is less than zero this function waits for a signal to occur before returning.
 	/// @param timeout The earliest time at which the function will stop waiting.
 	/// @return true if the semaphore was decremented, false otherwise.
-	bool wait(dispatch_time_t timeout) noexcept
-	{
-		return dispatch_semaphore_wait(semaphore_, timeout) == 0;
-	}
+	bool wait(dispatch_time_t timeout) noexcept 	{ return dispatch_semaphore_wait(semaphore_, timeout) == 0; }
 
 	/// Signals (increments) the semaphore.
 	///
 	/// If the previous value was less than zero, this function wakes a waiting thread.
 	/// @return true if a thread was woken, false otherwise
-	bool signal() noexcept
-	{
-		return dispatch_semaphore_signal(semaphore_) != 0;
-	}
+	bool signal() noexcept 							{ return dispatch_semaphore_signal(semaphore_) != 0; }
 
 	/// Waits for (decrements) the semaphore.
 	///
 	/// If the resulting value is less than zero this function waits for a signal to occur before returning.
-	void wait() noexcept 			{ wait(DISPATCH_TIME_FOREVER); }
+	void wait() noexcept 							{ wait(DISPATCH_TIME_FOREVER); }
+
+	// MARK: Scope Guard
 
 	/// A semaphore scope guard that waits in the constructor and signals in the destructor.
 	class ScopeGuard final {
@@ -129,7 +125,7 @@ public:
 		DispatchSemaphore& semaphore_;
 	};
 
-	// MARK: std::counting_semaphore compatibility
+	// MARK: std::counting_semaphore Compatibility
 
 	void acquire() noexcept 		{ wait(); }
 	void release() noexcept 		{ signal(); }
