@@ -136,10 +136,20 @@ public:
 
 	// MARK: std::counting_semaphore Compatibility
 
-	void acquire() noexcept 		{ wait(); }
-	void release() noexcept 		{ signal(); }
+	void acquire() noexcept
+	{
+		wait();
+	}
 
-	bool try_acquire() noexcept 	{ return wait(DISPATCH_TIME_NOW); }
+	void release() noexcept
+	{
+		signal();
+	}
+
+	bool try_acquire() noexcept
+	{
+		return wait(DISPATCH_TIME_NOW);
+	}
 
 	template<class Rep, class Period>
 	bool try_acquire_for(const std::chrono::duration<Rep, Period>& rel_time)
