@@ -87,16 +87,16 @@ class SemaphoreGuard final {
 public:
 	/// Constructs a semaphore guard and waits on the semaphore.
 	/// @param semaphore A semaphore.
-	explicit ScopeGuard(DispatchSemaphore& semaphore) noexcept;
+	explicit SemaphoreGuard(DispatchSemaphore& semaphore) noexcept;
 
-	ScopeGuard(const ScopeGuard&) = delete;
-	ScopeGuard& operator=(const ScopeGuard&) = delete;
+	SemaphoreGuard(const SemaphoreGuard&) = delete;
+	SemaphoreGuard& operator=(const SemaphoreGuard&) = delete;
 
-	ScopeGuard(ScopeGuard&&) = delete;
-	ScopeGuard& operator=(ScopeGuard&&) = delete;
+	SemaphoreGuard(SemaphoreGuard&&) = delete;
+	SemaphoreGuard& operator=(SemaphoreGuard&&) = delete;
 
 	/// Signals the semaphore.
-	~ScopeGuard() noexcept;
+	~SemaphoreGuard() noexcept;
 
 private:
 	/// A reference to the semaphore.
