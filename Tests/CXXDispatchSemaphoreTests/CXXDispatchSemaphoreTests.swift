@@ -15,4 +15,11 @@ import Foundation
 		let didAcquire = sema.wait(DispatchTime.now().rawValue)
 		#expect(!didAcquire)
 	}
+
+	@Test func wrapped() async {
+		let dsema = DispatchSemaphore(value: 0)
+		var sema = CXXDispatchSemaphore.DispatchSemaphore(dsema)
+		let didAcquire = sema.wait(DispatchTime.now().rawValue)
+		#expect(!didAcquire)
+	}
 }
