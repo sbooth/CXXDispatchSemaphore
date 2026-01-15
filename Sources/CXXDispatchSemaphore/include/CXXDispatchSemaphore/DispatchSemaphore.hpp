@@ -127,7 +127,7 @@ public:
 	/// Signals the semaphore if it has been acquired.
 	~SemaphoreGuard() noexcept;
 
-	/// true if the semaphore has been acquired.
+	/// Returns true if the semaphore has been acquired.
 	[[nodiscard]] explicit operator bool() const noexcept;
 
 	/// Returns true if the semaphore has been acquired.
