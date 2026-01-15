@@ -12,7 +12,7 @@ import Foundation
 @Suite struct CXXDispatchSemaphoreTests {
 	@Test func basic() async {
 		var sema = CXXDispatchSemaphore.DispatchSemaphore(0)
-		let decremented = sema.wait(DispatchTime.now().rawValue)
-		#expect(!decremented)
+		let didAcquire = sema.wait(DispatchTime.now().rawValue)
+		#expect(!didAcquire)
 	}
 }
