@@ -3,7 +3,7 @@
 A [`dispatch_semaphore_t`](https://developer.apple.com/documentation/dispatch/dispatch-semaphore?language=objc) wrapper with a [`std::counting_sempahore`](https://en.cppreference.com/w/cpp/thread/counting_semaphore.html) compatible interface.
 
 > [!NOTE]
-> C++14 is required.
+> C++17 is required.
 
 ## Installation
 

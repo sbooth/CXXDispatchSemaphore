@@ -91,7 +91,7 @@ struct already_acquired_t {
 };
 
 /// The semaphore has already been acquired and the constructor should not wait.
-constexpr already_acquired_t already_acquired;
+inline constexpr already_acquired_t already_acquired;
 
 /// A flexible scoped semaphore guard.
 class SemaphoreGuard final {
