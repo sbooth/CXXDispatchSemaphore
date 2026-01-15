@@ -109,6 +109,10 @@ public:
 	explicit SemaphoreGuard(DispatchSemaphore& semaphore) noexcept;
 
 	/// Constructs a semaphore guard and waits on the semaphore.
+	///
+	/// If the semaphore is not acquired before the timeout expires, the guard is
+	/// constructed in a non-acquired state. In this case `operator bool()` will
+	/// return false and the destructor will not signal the semaphore.
 	/// @param semaphore A semaphore.
 	/// @param timeout The earliest time at which the function will stop waiting.
 	SemaphoreGuard(DispatchSemaphore& semaphore, dispatch_time_t timeout) noexcept;
