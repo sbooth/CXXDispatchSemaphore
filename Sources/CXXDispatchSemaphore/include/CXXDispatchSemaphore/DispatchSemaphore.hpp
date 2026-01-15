@@ -10,6 +10,7 @@
 #import <cassert>
 #import <chrono>
 #import <stdexcept>
+#import <utility>
 
 #import <dispatch/dispatch.h>
 
@@ -65,29 +66,6 @@ public:
 	/// If the resulting value is less than zero this function waits for a signal to occur before returning.
 	void wait() noexcept;
 
-	// MARK: Scope Guard
-
-	/// A semaphore scope guard that waits in the constructor and signals in the destructor.
-	class ScopeGuard final {
-	public:
-		/// Creates a scope guard and waits on the semaphore.
-		/// @param semaphore A semaphore.
-		explicit ScopeGuard(DispatchSemaphore& semaphore) noexcept;
-
-		/// Signals the semaphore.
-		~ScopeGuard() noexcept;
-
-		ScopeGuard(const ScopeGuard&) = delete;
-		ScopeGuard& operator=(const ScopeGuard&) = delete;
-
-		ScopeGuard(ScopeGuard&&) = delete;
-		ScopeGuard& operator=(ScopeGuard&&) = delete;
-
-	private:
-		/// A reference to the semaphore.
-		DispatchSemaphore& semaphore_;
-	};
-
 	// MARK: std::counting_semaphore Compatibility
 
 	void acquire() noexcept;
@@ -103,6 +81,67 @@ public:
 private:
 	/// The underlying dispatch semaphore.
 	dispatch_semaphore_t _Nonnull semaphore_{nullptr};
+};
+
+// MARK: SemaphoreGuard
+
+/// A flexible scoped semaphore guard.
+class SemaphoreGuard final {
+public:
+	/// Tag indicating that a semaphore has already been acquired and that the constructor should not wait.
+	struct already_acquired_t {
+		explicit already_acquired_t() noexcept = default;
+	};
+
+	/// The semaphore has already been acquired and the constructor should not wait.
+	static constexpr already_acquired_t already_acquired{};
+
+	/// Constructs a semaphore guard and waits on the semaphore.
+	/// @param semaphore A semaphore.
+	explicit SemaphoreGuard(DispatchSemaphore& semaphore) noexcept;
+
+	/// Constructs a semaphore guard and waits on the semaphore.
+	///
+	/// If the semaphore is not acquired before the timeout expires, the guard is
+	/// constructed in a non-acquired state. In this case `operator bool()` will
+	/// return false and the destructor will not signal the semaphore.
+	/// @param semaphore A semaphore.
+	/// @param timeout The earliest time at which the function will stop waiting.
+	SemaphoreGuard(DispatchSemaphore& semaphore, dispatch_time_t timeout) noexcept;
+
+	/// Constructs a semaphore guard with an already-acquired semaphore.
+	/// @param semaphore A semaphore.
+	SemaphoreGuard(DispatchSemaphore& semaphore, already_acquired_t) noexcept;
+
+	SemaphoreGuard(const SemaphoreGuard&) = delete;
+	SemaphoreGuard& operator=(const SemaphoreGuard&) = delete;
+
+	/// Constructs a semaphore guard by moving another.
+	/// @param other The guard to move.
+	SemaphoreGuard(SemaphoreGuard&& other) noexcept;
+
+	/// Replaces this semaphore guard by moving another.
+	/// @param other The guard to move.
+	SemaphoreGuard& operator=(SemaphoreGuard&& other) noexcept;
+
+	/// Signals the semaphore if it has been acquired.
+	~SemaphoreGuard() noexcept;
+
+	/// Returns true if the semaphore has been acquired.
+	[[nodiscard]] explicit operator bool() const noexcept;
+
+	/// Returns true if the semaphore has been acquired.
+	[[nodiscard]] bool acquired() const noexcept;
+
+	/// Stops managing the semaphore without signaling.
+	/// @return true if the semaphore was previously acquired, false otherwise
+	bool dismiss() noexcept;
+
+private:
+	/// A pointer to the semaphore.
+	DispatchSemaphore * _Nullable semaphore_{nullptr};
+	/// Whether the guard has acquired the semaphore.
+	bool acquired_{false};
 };
 
 // MARK: - Implementation -
@@ -167,19 +206,6 @@ inline void DispatchSemaphore::wait() noexcept
 	wait(DISPATCH_TIME_FOREVER);
 }
 
-// MARK: Scope Guard
-
-inline DispatchSemaphore::ScopeGuard::ScopeGuard(DispatchSemaphore& semaphore) noexcept
-: semaphore_{semaphore}
-{
-	semaphore_.wait();
-}
-
-inline DispatchSemaphore::ScopeGuard::~ScopeGuard() noexcept
-{
-	semaphore_.signal();
-}
-
 // MARK: std::counting_semaphore Compatibility
 
 inline void DispatchSemaphore::acquire() noexcept
@@ -216,6 +242,59 @@ inline bool DispatchSemaphore::try_acquire_until(const std::chrono::time_point<C
 	const auto nsec = std::chrono::duration_cast<std::chrono::nanoseconds>(abs_time - now);
 	const auto timeout = dispatch_time(DISPATCH_TIME_NOW, nsec.count());
 	return wait(timeout);
+}
+
+// MARK: - SemaphoreGuard
+
+inline SemaphoreGuard::SemaphoreGuard(DispatchSemaphore& semaphore) noexcept
+: SemaphoreGuard{semaphore, DISPATCH_TIME_FOREVER}
+{}
+
+inline SemaphoreGuard::SemaphoreGuard(DispatchSemaphore& semaphore, dispatch_time_t timeout) noexcept
+: semaphore_{&semaphore}
+{
+	acquired_ = semaphore_->wait(timeout);
+}
+
+inline SemaphoreGuard::SemaphoreGuard(DispatchSemaphore& semaphore, already_acquired_t) noexcept
+: semaphore_{&semaphore}, acquired_{true}
+{}
+
+inline SemaphoreGuard::SemaphoreGuard(SemaphoreGuard&& other) noexcept
+: semaphore_{std::exchange(other.semaphore_, nullptr)}, acquired_{std::exchange(other.acquired_, false)}
+{}
+
+inline SemaphoreGuard& SemaphoreGuard::operator=(SemaphoreGuard&& other) noexcept
+{
+	if(this != &other) {
+		if(semaphore_ && acquired_)
+			semaphore_->signal();
+		semaphore_ = std::exchange(other.semaphore_, nullptr);
+		acquired_ = std::exchange(other.acquired_, false);
+	}
+	return *this;
+}
+
+inline SemaphoreGuard::~SemaphoreGuard() noexcept
+{
+	if(semaphore_ && acquired_)
+		semaphore_->signal();
+}
+
+inline SemaphoreGuard::operator bool() const noexcept
+{
+	return acquired_;
+}
+
+inline bool SemaphoreGuard::acquired() const noexcept
+{
+	return acquired_;
+}
+
+inline bool SemaphoreGuard::dismiss() noexcept
+{
+	semaphore_ = nullptr;
+	return std::exchange(acquired_, false);
 }
 
 } /* namespace CXXDispatchSemaphore */
