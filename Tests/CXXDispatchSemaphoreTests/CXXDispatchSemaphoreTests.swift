@@ -10,7 +10,7 @@ import Foundation
 @testable import CXXDispatchSemaphore
 
 @Suite struct CXXDispatchSemaphoreTests {
-	@Test func basic() {
+	@Test func basic() async {
 		var sema = CXXDispatchSemaphore.DispatchSemaphore(0)
 		let didAcquire = sema.wait(DispatchTime.now().rawValue)
 		#expect(!didAcquire)
