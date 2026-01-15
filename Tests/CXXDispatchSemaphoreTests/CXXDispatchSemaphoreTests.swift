@@ -11,8 +11,8 @@ import Foundation
 
 @Suite struct CXXDispatchSemaphoreTests {
 	@Test func basic() async {
-//		let dsema = dispatch_semaphore_t(value: 1)
-//		var sema = CXXDispatchSemaphore.DispatchSemaphore(dsema)
-//		#expect(!sema.wait(DispatchTime.now().rawValue))
+		var sema = CXXDispatchSemaphore.DispatchSemaphore(0)
+		let decremented = sema.wait(DispatchTime.now().rawValue)
+		#expect(!decremented)
 	}
 }
