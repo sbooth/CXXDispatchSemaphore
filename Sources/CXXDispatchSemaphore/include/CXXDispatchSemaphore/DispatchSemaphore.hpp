@@ -65,29 +65,6 @@ public:
 	/// If the resulting value is less than zero this function waits for a signal to occur before returning.
 	void wait() noexcept;
 
-	// MARK: Scope Guard
-
-	/// A semaphore scope guard that waits in the constructor and signals in the destructor.
-	class ScopeGuard final {
-	public:
-		/// Creates a scope guard and waits on the semaphore.
-		/// @param semaphore A semaphore.
-		explicit ScopeGuard(DispatchSemaphore& semaphore) noexcept;
-
-		/// Signals the semaphore.
-		~ScopeGuard() noexcept;
-
-		ScopeGuard(const ScopeGuard&) = delete;
-		ScopeGuard& operator=(const ScopeGuard&) = delete;
-
-		ScopeGuard(ScopeGuard&&) = delete;
-		ScopeGuard& operator=(ScopeGuard&&) = delete;
-
-	private:
-		/// A reference to the semaphore.
-		DispatchSemaphore& semaphore_;
-	};
-
 	// MARK: std::counting_semaphore Compatibility
 
 	void acquire() noexcept;
@@ -103,6 +80,27 @@ public:
 private:
 	/// The underlying dispatch semaphore.
 	dispatch_semaphore_t _Nonnull semaphore_{nullptr};
+};
+
+/// A scoped semaphore guard that waits in the constructor and signals in the destructor.
+class SemaphoreGuard final {
+public:
+	/// Constructs a semaphore guard and waits on the semaphore.
+	/// @param semaphore A semaphore.
+	explicit ScopeGuard(DispatchSemaphore& semaphore) noexcept;
+
+	ScopeGuard(const ScopeGuard&) = delete;
+	ScopeGuard& operator=(const ScopeGuard&) = delete;
+
+	ScopeGuard(ScopeGuard&&) = delete;
+	ScopeGuard& operator=(ScopeGuard&&) = delete;
+
+	/// Signals the semaphore.
+	~ScopeGuard() noexcept;
+
+private:
+	/// A reference to the semaphore.
+	DispatchSemaphore& semaphore_;
 };
 
 // MARK: - Implementation -
@@ -167,19 +165,6 @@ inline void DispatchSemaphore::wait() noexcept
 	wait(DISPATCH_TIME_FOREVER);
 }
 
-// MARK: Scope Guard
-
-inline DispatchSemaphore::ScopeGuard::ScopeGuard(DispatchSemaphore& semaphore) noexcept
-: semaphore_{semaphore}
-{
-	semaphore_.wait();
-}
-
-inline DispatchSemaphore::ScopeGuard::~ScopeGuard() noexcept
-{
-	semaphore_.signal();
-}
-
 // MARK: std::counting_semaphore Compatibility
 
 inline void DispatchSemaphore::acquire() noexcept
@@ -211,6 +196,17 @@ inline bool DispatchSemaphore::try_acquire_until(const std::chrono::time_point<C
 	const auto nsec = std::chrono::duration_cast<std::chrono::nanoseconds>(abs_time - Clock::now());
 	const auto timeout = dispatch_time(DISPATCH_TIME_NOW, nsec.count());
 	return wait(timeout);
+}
+
+inline SemaphoreGuard::SemaphoreGuard(DispatchSemaphore& semaphore) noexcept
+: semaphore_{semaphore}
+{
+	semaphore_.wait();
+}
+
+inline SemaphoreGuard::~SemaphoreGuard() noexcept
+{
+	semaphore_.signal();
 }
 
 } /* namespace CXXDispatchSemaphore */
