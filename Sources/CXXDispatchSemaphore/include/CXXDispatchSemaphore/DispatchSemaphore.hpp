@@ -116,7 +116,12 @@ public:
 	SemaphoreGuard(const SemaphoreGuard&) = delete;
 	SemaphoreGuard& operator=(const SemaphoreGuard&) = delete;
 
+	/// Constructs a semaphore guard by moving another.
+	/// @param other The guard to move.
 	SemaphoreGuard(SemaphoreGuard&& other) noexcept;
+
+	/// Replaces this semaphore guard by moving another.
+	/// @param other The guard to move.
 	SemaphoreGuard& operator=(SemaphoreGuard&& other) noexcept;
 
 	/// Signals the semaphore if it has been acquired.
