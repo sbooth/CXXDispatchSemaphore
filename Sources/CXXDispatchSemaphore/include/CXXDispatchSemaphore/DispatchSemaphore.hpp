@@ -261,7 +261,7 @@ inline SemaphoreGuard::SemaphoreGuard(DispatchSemaphore& semaphore, already_acqu
 {}
 
 inline SemaphoreGuard::SemaphoreGuard(SemaphoreGuard&& other) noexcept
-: semaphore_{std::exchange(other.semaphore_, nullptr)} , acquired_{std::exchange(other.acquired_, false)}
+: semaphore_{std::exchange(other.semaphore_, nullptr)}, acquired_{std::exchange(other.acquired_, false)}
 {}
 
 inline SemaphoreGuard& SemaphoreGuard::operator=(SemaphoreGuard&& other) noexcept
