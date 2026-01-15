@@ -85,17 +85,17 @@ private:
 
 // MARK: SemaphoreGuard
 
-/// Tag indicating that a semaphore has already been acquired and that the constructor should not wait.
-struct already_acquired_t {
-	explicit already_acquired_t() noexcept = default;
-};
-
-/// The semaphore has already been acquired and the constructor should not wait.
-inline constexpr already_acquired_t already_acquired;
-
 /// A flexible scoped semaphore guard.
 class SemaphoreGuard final {
 public:
+	/// Tag indicating that a semaphore has already been acquired and that the constructor should not wait.
+	struct already_acquired_t {
+		explicit already_acquired_t() noexcept = default;
+	};
+
+	/// The semaphore has already been acquired and the constructor should not wait.
+	static constexpr already_acquired_t already_acquired{};
+
 	/// Constructs a semaphore guard and waits on the semaphore.
 	/// @param semaphore A semaphore.
 	explicit SemaphoreGuard(DispatchSemaphore& semaphore) noexcept;
