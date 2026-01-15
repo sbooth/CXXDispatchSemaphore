@@ -9,7 +9,6 @@
 
 #import <cassert>
 #import <chrono>
-#import <functional>
 #import <stdexcept>
 #import <utility>
 
@@ -134,8 +133,8 @@ public:
 	bool release() noexcept;
 
 private:
-	/// A reference to the semaphore.
-	std::reference_wrapper<DispatchSemaphore> semaphore_;
+	/// A pointer to the semaphore.
+	DispatchSemaphore * _Nonnull semaphore_{nullptr};
 	/// Whether the guard has acquired the semaphore.
 	bool acquired_{false};
 };
@@ -247,25 +246,25 @@ inline SemaphoreGuard::SemaphoreGuard(DispatchSemaphore& semaphore) noexcept
 {}
 
 inline SemaphoreGuard::SemaphoreGuard(DispatchSemaphore& semaphore, dispatch_time_t timeout) noexcept
-: semaphore_{semaphore}
+: semaphore_{&semaphore}
 {
-	acquired_ = semaphore_.get().wait(timeout);
+	acquired_ = semaphore_->wait(timeout);
 }
 
 inline SemaphoreGuard::SemaphoreGuard(DispatchSemaphore& semaphore, already_acquired_t) noexcept
-: semaphore_{semaphore}, acquired_{true}
+: semaphore_{&semaphore}, acquired_{true}
 {}
 
 inline SemaphoreGuard::SemaphoreGuard(SemaphoreGuard&& other) noexcept
-: semaphore_{other.semaphore_} , acquired_{std::exchange(other.acquired_, false)}
+: semaphore_{std::exchange(other.semaphore_, nullptr)} , acquired_{std::exchange(other.acquired_, false)}
 {}
 
 inline SemaphoreGuard& SemaphoreGuard::operator=(SemaphoreGuard&& other) noexcept
 {
 	if(this != &other) {
-		if(acquired_)
-			semaphore_.get().signal();
-		semaphore_ = other.semaphore_;
+		if(semaphore_ && acquired_)
+			semaphore_->signal();
+		semaphore_ = std::exchange(other.semaphore_, nullptr);
 		acquired_ = std::exchange(other.acquired_, false);
 	}
 	return *this;
@@ -273,8 +272,8 @@ inline SemaphoreGuard& SemaphoreGuard::operator=(SemaphoreGuard&& other) noexcep
 
 inline SemaphoreGuard::~SemaphoreGuard() noexcept
 {
-	if(acquired_)
-		semaphore_.get().signal();
+	if(semaphore_ && acquired_)
+		semaphore_->signal();
 }
 
 inline SemaphoreGuard::operator bool() const noexcept
