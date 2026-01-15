@@ -139,7 +139,7 @@ public:
 
 private:
 	/// A pointer to the semaphore.
-	DispatchSemaphore * _Nonnull semaphore_{nullptr};
+	DispatchSemaphore * _Nullable semaphore_{nullptr};
 	/// Whether the guard has acquired the semaphore.
 	bool acquired_{false};
 };
