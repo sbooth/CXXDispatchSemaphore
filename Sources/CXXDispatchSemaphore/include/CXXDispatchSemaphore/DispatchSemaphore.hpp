@@ -128,9 +128,9 @@ public:
 	/// Returns true if the semaphore has been acquired.
 	[[nodiscard]] bool acquired() const noexcept;
 
-	/// Dismisses the guard by marking the semaphore as not acquired without signaling.
+	/// Stops managing the semaphore without signaling.
 	/// @return true if the semaphore was previously acquired, false otherwise
-	bool dismiss() noexcept;
+	bool release() noexcept;
 
 private:
 	/// A reference to the semaphore.
@@ -271,7 +271,7 @@ inline bool SemaphoreGuard::acquired() const noexcept
 	return acquired_;
 }
 
-inline bool SemaphoreGuard::dismiss() noexcept
+inline bool SemaphoreGuard::release() noexcept
 {
 	return std::exchange(acquired_, false);
 }
