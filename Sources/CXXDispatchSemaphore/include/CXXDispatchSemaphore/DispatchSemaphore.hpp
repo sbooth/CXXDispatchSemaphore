@@ -293,6 +293,7 @@ inline bool SemaphoreGuard::acquired() const noexcept
 
 inline bool SemaphoreGuard::release() noexcept
 {
+	semaphore_ = nullptr;
 	return std::exchange(acquired_, false);
 }
 
