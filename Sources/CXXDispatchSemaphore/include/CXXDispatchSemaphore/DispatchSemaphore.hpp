@@ -116,8 +116,8 @@ public:
 	SemaphoreGuard(const SemaphoreGuard&) = delete;
 	SemaphoreGuard& operator=(const SemaphoreGuard&) = delete;
 
-	SemaphoreGuard(SemaphoreGuard&&) = delete;
-	SemaphoreGuard& operator=(SemaphoreGuard&&) = delete;
+	SemaphoreGuard(SemaphoreGuard&& other) noexcept;
+	SemaphoreGuard& operator=(SemaphoreGuard&& other) noexcept;
 
 	/// Signals the semaphore if it has been acquired.
 	~SemaphoreGuard() noexcept;
@@ -254,6 +254,21 @@ inline SemaphoreGuard::SemaphoreGuard(DispatchSemaphore& semaphore, dispatch_tim
 inline SemaphoreGuard::SemaphoreGuard(DispatchSemaphore& semaphore, already_acquired_t) noexcept
 : semaphore_{semaphore}, acquired_{true}
 {}
+
+inline SemaphoreGuard::SemaphoreGuard(SemaphoreGuard&& other) noexcept
+: semaphore_{other.semaphore_} , acquired_{std::exchange(other.acquired_, false)}
+{}
+
+inline SemaphoreGuard& SemaphoreGuard::operator=(SemaphoreGuard&& other) noexcept
+{
+	if(this != &other) {
+		if(acquired_)
+			semaphore_.signal();
+		semaphore_ = other.semaphore_;
+		acquired_ = std::exchange(other.acquired_, false);
+	}
+	return *this;
+}
 
 inline SemaphoreGuard::~SemaphoreGuard() noexcept
 {
