@@ -135,7 +135,7 @@ public:
 
 	/// Stops managing the semaphore without signaling.
 	/// @return true if the semaphore was previously acquired, false otherwise
-	bool release() noexcept;
+	bool dismiss() noexcept;
 
 private:
 	/// A pointer to the semaphore.
@@ -291,7 +291,7 @@ inline bool SemaphoreGuard::acquired() const noexcept
 	return acquired_;
 }
 
-inline bool SemaphoreGuard::release() noexcept
+inline bool SemaphoreGuard::dismiss() noexcept
 {
 	semaphore_ = nullptr;
 	return std::exchange(acquired_, false);
