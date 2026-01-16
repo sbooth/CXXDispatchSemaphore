@@ -251,10 +251,8 @@ inline SemaphoreGuard::SemaphoreGuard(DispatchSemaphore& semaphore) noexcept
 {}
 
 inline SemaphoreGuard::SemaphoreGuard(DispatchSemaphore& semaphore, dispatch_time_t timeout) noexcept
-: semaphore_{&semaphore}
-{
-	acquired_ = semaphore_->wait(timeout);
-}
+: semaphore_{&semaphore}, acquired_{semaphore.wait(timeout)}
+{}
 
 inline SemaphoreGuard::SemaphoreGuard(DispatchSemaphore& semaphore, already_acquired_t) noexcept
 : semaphore_{&semaphore}, acquired_{true}
