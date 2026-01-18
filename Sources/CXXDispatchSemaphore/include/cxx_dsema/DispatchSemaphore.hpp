@@ -165,7 +165,7 @@ inline DispatchSemaphore::DispatchSemaphore(dispatch_semaphore_t _Nonnull semaph
 }
 
 inline DispatchSemaphore::DispatchSemaphore(const DispatchSemaphore& other) noexcept
-: DispatchSemaphore{other.semaphore_}
+: DispatchSemaphore(other.semaphore_)
 {}
 
 inline DispatchSemaphore& DispatchSemaphore::operator=(const DispatchSemaphore& other) noexcept
