@@ -160,7 +160,7 @@ inline DispatchSemaphore::DispatchSemaphore(dispatch_semaphore_t _Nonnull semaph
 }
 
 inline DispatchSemaphore::DispatchSemaphore(const DispatchSemaphore &other) noexcept
-  : DispatchSemaphore{other.semaphore_} {}
+  : DispatchSemaphore(other.semaphore_) {}
 
 inline DispatchSemaphore &DispatchSemaphore::operator=(const DispatchSemaphore &other) noexcept {
     if (this != &other) {
@@ -231,7 +231,7 @@ inline bool DispatchSemaphore::try_acquire_until(const std::chrono::time_point<C
 // MARK: - SemaphoreGuard
 
 inline SemaphoreGuard::SemaphoreGuard(DispatchSemaphore &semaphore) noexcept
-  : SemaphoreGuard{semaphore, DISPATCH_TIME_FOREVER} {}
+  : SemaphoreGuard(semaphore, DISPATCH_TIME_FOREVER) {}
 
 inline SemaphoreGuard::SemaphoreGuard(DispatchSemaphore &semaphore, dispatch_time_t timeout) noexcept
   : semaphore_{&semaphore}, acquired_{semaphore.wait(timeout)} {}
