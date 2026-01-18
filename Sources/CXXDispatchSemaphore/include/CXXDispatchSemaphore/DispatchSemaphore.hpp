@@ -40,9 +40,6 @@ class DispatchSemaphore final {
     /// @return A reference to this.
     DispatchSemaphore &operator=(const DispatchSemaphore &other) noexcept;
 
-    //  DispatchSemaphore(DispatchSemaphore&&) = delete;
-    //  DispatchSemaphore& operator=(DispatchSemaphore&&) = delete;
-
     /// Releases the underlying dispatch semaphore.
     ~DispatchSemaphore() noexcept;
 
