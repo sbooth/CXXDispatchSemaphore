@@ -159,12 +159,7 @@ inline DispatchSemaphore::DispatchSemaphore(dispatch_semaphore_t _Nonnull semaph
 }
 
 inline DispatchSemaphore::DispatchSemaphore(const DispatchSemaphore& other) noexcept
-<<<<<<< HEAD:Sources/CXXDispatchSemaphore/include/cxx_dsema/DispatchSemaphore.hpp
-: DispatchSemaphore(other.semaphore_)
-{}
-=======
   : DispatchSemaphore(other.semaphore_) {}
->>>>>>> main:Sources/CXXDispatchSemaphore/include/CXXDispatchSemaphore/DispatchSemaphore.hpp
 
 inline DispatchSemaphore& DispatchSemaphore::operator=(const DispatchSemaphore& other) noexcept {
     if (this != &other) {
