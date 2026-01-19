@@ -6,7 +6,7 @@
 //
 
 module CXXDispatchSemaphore {
-	requires cplusplus17
-	header "CXXDispatchSemaphore/DispatchSemaphore.hpp"
-	export *
+    requires cplusplus17
+    header "CXXDispatchSemaphore/DispatchSemaphore.hpp"
+    export *
 }
