@@ -144,12 +144,14 @@ class SemaphoreGuard final {
 
 // MARK: Creation and Destruction
 
-inline DispatchSemaphore::DispatchSemaphore(intptr_t value) : semaphore_{dispatch_semaphore_create(value)} {
+inline DispatchSemaphore::DispatchSemaphore(intptr_t value)
+  : semaphore_{dispatch_semaphore_create(value)} {
     if (!semaphore_)
         throw std::runtime_error("Unable to create dispatch semaphore");
 }
 
-inline DispatchSemaphore::DispatchSemaphore(dispatch_semaphore_t _Nonnull semaphore) noexcept : semaphore_{semaphore} {
+inline DispatchSemaphore::DispatchSemaphore(dispatch_semaphore_t _Nonnull semaphore) noexcept
+  : semaphore_{semaphore} {
     assert(semaphore_ != nullptr);
 #if !__has_feature(objc_arc)
     dispatch_retain(semaphore_);
