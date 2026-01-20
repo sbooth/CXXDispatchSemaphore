@@ -11,6 +11,7 @@
 
 #import <cassert>
 #import <chrono>
+#import <cstdint>
 #import <stdexcept>
 #import <utility>
 
@@ -39,6 +40,9 @@ class DispatchSemaphore final {
     /// @param other The semaphore to copy.
     /// @return A reference to this.
     auto operator=(const DispatchSemaphore& other) noexcept -> DispatchSemaphore&;
+
+    DispatchSemaphore(DispatchSemaphore&&) = delete;
+    auto operator=(DispatchSemaphore&&) -> DispatchSemaphore& = delete;
 
     /// Releases the underlying dispatch semaphore.
     ~DispatchSemaphore() noexcept;
