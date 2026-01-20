@@ -14,7 +14,7 @@
 #import <stdexcept>
 #import <utility>
 
-namespace cxx_dsema {
+namespace cxxdsema {
 
 /// A dispatch_semaphore_t wrapper.
 class DispatchSemaphore final {
@@ -269,4 +269,4 @@ inline bool SemaphoreGuard::dismiss() noexcept {
     return std::exchange(acquired_, false);
 }
 
-} /* namespace cxx_dsema */
+} /* namespace cxxdsema */

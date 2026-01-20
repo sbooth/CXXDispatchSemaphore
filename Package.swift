@@ -22,7 +22,7 @@ let package = Package(
         .target(
             name: "CXXDispatchSemaphore",
             cSettings: [
-                .headerSearchPath("include/cxx_dsema"),
+                .headerSearchPath("include/cxxdsema"),
             ]
         ),
         .testTarget(
