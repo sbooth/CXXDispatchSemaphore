@@ -38,7 +38,7 @@ class DispatchSemaphore final {
     /// Replaces this semaphore with an existing semaphore.
     /// @param other The semaphore to copy.
     /// @return A reference to this.
-    DispatchSemaphore& operator=(const DispatchSemaphore& other) noexcept;
+    auto operator=(const DispatchSemaphore& other) noexcept -> DispatchSemaphore&;
 
     /// Releases the underlying dispatch semaphore.
     ~DispatchSemaphore() noexcept;
@@ -50,13 +50,13 @@ class DispatchSemaphore final {
     /// If the resulting value is less than zero this function waits for a signal to occur before returning.
     /// @param timeout The earliest time at which the function will stop waiting.
     /// @return true if the semaphore was decremented, false otherwise.
-    bool wait(dispatch_time_t timeout) noexcept;
+    auto wait(dispatch_time_t timeout) noexcept -> bool;
 
     /// Signals (increments) the semaphore.
     ///
     /// If the previous value was less than zero, this function wakes a waiting thread.
     /// @return true if a thread was woken, false otherwise
-    bool signal() noexcept;
+    auto signal() noexcept -> bool;
 
     /// Waits for (decrements) the semaphore.
     ///
@@ -67,13 +67,13 @@ class DispatchSemaphore final {
 
     void acquire() noexcept;
     void release() noexcept;
-    bool try_acquire() noexcept;
+    auto try_acquire() noexcept -> bool;
 
     template <class Rep, class Period>
-    bool try_acquire_for(const std::chrono::duration<Rep, Period>& rel_time);
+    auto try_acquire_for(const std::chrono::duration<Rep, Period>& rel_time) -> bool;
 
     template <class Clock, class Duration>
-    bool try_acquire_until(const std::chrono::time_point<Clock, Duration>& abs_time);
+    auto try_acquire_until(const std::chrono::time_point<Clock, Duration>& abs_time) -> bool;
 
   private:
     /// The underlying dispatch semaphore.
@@ -107,10 +107,10 @@ class SemaphoreGuard final {
 
     /// Constructs a semaphore guard with an already-acquired semaphore.
     /// @param semaphore A semaphore.
-    SemaphoreGuard(DispatchSemaphore& semaphore, already_acquired_t) noexcept;
+    SemaphoreGuard(DispatchSemaphore& semaphore, already_acquired_t /*unused*/) noexcept;
 
     SemaphoreGuard(const SemaphoreGuard&) = delete;
-    SemaphoreGuard& operator=(const SemaphoreGuard&) = delete;
+    auto operator=(const SemaphoreGuard&) -> SemaphoreGuard& = delete;
 
     /// Constructs a semaphore guard by moving another.
     /// @param other The guard to move.
@@ -118,7 +118,7 @@ class SemaphoreGuard final {
 
     /// Replaces this semaphore guard by moving another.
     /// @param other The guard to move.
-    SemaphoreGuard& operator=(SemaphoreGuard&& other) noexcept;
+    auto operator=(SemaphoreGuard&& other) noexcept -> SemaphoreGuard&;
 
     /// Signals the semaphore if it has been acquired.
     ~SemaphoreGuard() noexcept;
@@ -127,11 +127,11 @@ class SemaphoreGuard final {
     [[nodiscard]] explicit operator bool() const noexcept;
 
     /// Returns true if the semaphore has been acquired.
-    [[nodiscard]] bool acquired() const noexcept;
+    [[nodiscard]] auto acquired() const noexcept -> bool;
 
     /// Stops managing the semaphore without signaling.
     /// @return true if the semaphore was previously acquired, false otherwise
-    bool dismiss() noexcept;
+    auto dismiss() noexcept -> bool;
 
   private:
     /// A pointer to the semaphore.
@@ -146,8 +146,9 @@ class SemaphoreGuard final {
 
 inline DispatchSemaphore::DispatchSemaphore(intptr_t value)
   : semaphore_{dispatch_semaphore_create(value)} {
-    if (!semaphore_)
+    if (semaphore_ == nullptr) {
         throw std::runtime_error("Unable to create dispatch semaphore");
+    }
 }
 
 inline DispatchSemaphore::DispatchSemaphore(dispatch_semaphore_t _Nonnull semaphore) noexcept
@@ -161,7 +162,7 @@ inline DispatchSemaphore::DispatchSemaphore(dispatch_semaphore_t _Nonnull semaph
 inline DispatchSemaphore::DispatchSemaphore(const DispatchSemaphore& other) noexcept
   : DispatchSemaphore(other.semaphore_) {}
 
-inline DispatchSemaphore& DispatchSemaphore::operator=(const DispatchSemaphore& other) noexcept {
+inline auto DispatchSemaphore::operator=(const DispatchSemaphore& other) noexcept -> DispatchSemaphore& {
     if (this != &other) {
 #if !__has_feature(objc_arc)
         dispatch_release(semaphore_);
@@ -182,11 +183,11 @@ inline DispatchSemaphore::~DispatchSemaphore() noexcept {
 
 // MARK: Primitives
 
-inline bool DispatchSemaphore::wait(dispatch_time_t timeout) noexcept {
+inline auto DispatchSemaphore::wait(dispatch_time_t timeout) noexcept -> bool {
     return dispatch_semaphore_wait(semaphore_, timeout) == 0;
 }
 
-inline bool DispatchSemaphore::signal() noexcept {
+inline auto DispatchSemaphore::signal() noexcept -> bool {
     return dispatch_semaphore_signal(semaphore_) != 0;
 }
 
@@ -204,24 +205,26 @@ inline void DispatchSemaphore::release() noexcept {
     signal();
 }
 
-inline bool DispatchSemaphore::try_acquire() noexcept {
+inline auto DispatchSemaphore::try_acquire() noexcept -> bool {
     return wait(DISPATCH_TIME_NOW);
 }
 
 template <class Rep, class Period>
-inline bool DispatchSemaphore::try_acquire_for(const std::chrono::duration<Rep, Period>& rel_time) {
-    if (rel_time <= std::chrono::duration<Rep, Period>::zero())
+inline auto DispatchSemaphore::try_acquire_for(const std::chrono::duration<Rep, Period>& rel_time) -> bool {
+    if (rel_time <= std::chrono::duration<Rep, Period>::zero()) {
         return wait(DISPATCH_TIME_NOW);
+    }
     const auto nsec = std::chrono::duration_cast<std::chrono::nanoseconds>(rel_time);
     const auto timeout = dispatch_time(DISPATCH_TIME_NOW, nsec.count());
     return wait(timeout);
 }
 
 template <class Clock, class Duration>
-inline bool DispatchSemaphore::try_acquire_until(const std::chrono::time_point<Clock, Duration>& abs_time) {
+inline auto DispatchSemaphore::try_acquire_until(const std::chrono::time_point<Clock, Duration>& abs_time) -> bool {
     const auto now = Clock::now();
-    if (abs_time <= now)
+    if (abs_time <= now) {
         return wait(DISPATCH_TIME_NOW);
+    }
     const auto nsec = std::chrono::duration_cast<std::chrono::nanoseconds>(abs_time - now);
     const auto timeout = dispatch_time(DISPATCH_TIME_NOW, nsec.count());
     return wait(timeout);
@@ -235,16 +238,17 @@ inline SemaphoreGuard::SemaphoreGuard(DispatchSemaphore& semaphore) noexcept
 inline SemaphoreGuard::SemaphoreGuard(DispatchSemaphore& semaphore, dispatch_time_t timeout) noexcept
   : semaphore_{&semaphore}, acquired_{semaphore.wait(timeout)} {}
 
-inline SemaphoreGuard::SemaphoreGuard(DispatchSemaphore& semaphore, already_acquired_t) noexcept
+inline SemaphoreGuard::SemaphoreGuard(DispatchSemaphore& semaphore, already_acquired_t /*unused*/) noexcept
   : semaphore_{&semaphore}, acquired_{true} {}
 
 inline SemaphoreGuard::SemaphoreGuard(SemaphoreGuard&& other) noexcept
   : semaphore_{std::exchange(other.semaphore_, nullptr)}, acquired_{std::exchange(other.acquired_, false)} {}
 
-inline SemaphoreGuard& SemaphoreGuard::operator=(SemaphoreGuard&& other) noexcept {
+inline auto SemaphoreGuard::operator=(SemaphoreGuard&& other) noexcept -> SemaphoreGuard& {
     if (this != &other) {
-        if (semaphore_ && acquired_)
+        if ((semaphore_ != nullptr) && acquired_) {
             semaphore_->signal();
+        }
         semaphore_ = std::exchange(other.semaphore_, nullptr);
         acquired_ = std::exchange(other.acquired_, false);
     }
@@ -252,19 +256,20 @@ inline SemaphoreGuard& SemaphoreGuard::operator=(SemaphoreGuard&& other) noexcep
 }
 
 inline SemaphoreGuard::~SemaphoreGuard() noexcept {
-    if (semaphore_ && acquired_)
+    if ((semaphore_ != nullptr) && acquired_) {
         semaphore_->signal();
+    }
 }
 
 inline SemaphoreGuard::operator bool() const noexcept {
     return acquired_;
 }
 
-inline bool SemaphoreGuard::acquired() const noexcept {
+inline auto SemaphoreGuard::acquired() const noexcept -> bool {
     return acquired_;
 }
 
-inline bool SemaphoreGuard::dismiss() noexcept {
+inline auto SemaphoreGuard::dismiss() noexcept -> bool {
     semaphore_ = nullptr;
     return std::exchange(acquired_, false);
 }
