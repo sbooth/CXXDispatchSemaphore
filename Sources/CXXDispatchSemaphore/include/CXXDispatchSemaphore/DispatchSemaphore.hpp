@@ -166,7 +166,7 @@ inline DispatchSemaphore::DispatchSemaphore(dispatch_semaphore_t _Nonnull semaph
 inline DispatchSemaphore::DispatchSemaphore(const DispatchSemaphore& other) noexcept
   : DispatchSemaphore(other.semaphore_) {}
 
-inline SemaphoreGuard& DispatchSemaphore::operator=(const DispatchSemaphore& other) noexcept {
+inline DispatchSemaphore& DispatchSemaphore::operator=(const DispatchSemaphore& other) noexcept {
     if (this != &other) {
 #if !__has_feature(objc_arc)
         dispatch_release(semaphore_);
