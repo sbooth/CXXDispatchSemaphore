@@ -43,6 +43,7 @@ class DispatchSemaphore final {
 
     /// Move construction is disabled to preserve clear ownership of the underlying semaphore.
     DispatchSemaphore(DispatchSemaphore&&) = delete;
+
     /// Move assignment is disabled to preserve clear ownership of the underlying semaphore.
     auto operator=(DispatchSemaphore&&) -> DispatchSemaphore& = delete;
 
