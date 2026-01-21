@@ -41,7 +41,9 @@ class DispatchSemaphore final {
     /// @return A reference to this.
     auto operator=(const DispatchSemaphore& other) noexcept -> DispatchSemaphore&;
 
+    /// Move construction is disabled to preserve clear ownership of the underlying semaphore.
     DispatchSemaphore(DispatchSemaphore&&) = delete;
+    /// Move assignment is disabled to preserve clear ownership of the underlying semaphore.
     auto operator=(DispatchSemaphore&&) -> DispatchSemaphore& = delete;
 
     /// Releases the underlying dispatch semaphore.
