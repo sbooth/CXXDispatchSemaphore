@@ -21,7 +21,7 @@ let package = Package(
     targets: [
         .target(
             name: "CXXDispatchSemaphore",
-            cSettings: [
+            cxxSettings: [
                 .headerSearchPath("include/CXXDispatchSemaphore"),
             ]
         ),
