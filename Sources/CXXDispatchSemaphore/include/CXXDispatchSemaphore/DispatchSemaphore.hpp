@@ -7,13 +7,13 @@
 
 #pragma once
 
-#import <dispatch/dispatch.h>
+#include <dispatch/dispatch.h>
 
-#import <cassert>
-#import <chrono>
-#import <cstdint>
-#import <stdexcept>
-#import <utility>
+#include <cassert>
+#include <chrono>
+#include <cstdint>
+#include <stdexcept>
+#include <utility>
 
 namespace CXXDispatchSemaphore {
 
