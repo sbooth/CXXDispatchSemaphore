@@ -20,10 +20,7 @@ let package = Package(
     ],
     targets: [
         .target(
-            name: "CXXDispatchSemaphore",
-            cSettings: [
-                .headerSearchPath("include/dsema"),
-            ]
+            name: "CXXDispatchSemaphore"
         ),
         .testTarget(
             name: "CXXDispatchSemaphoreTests",
