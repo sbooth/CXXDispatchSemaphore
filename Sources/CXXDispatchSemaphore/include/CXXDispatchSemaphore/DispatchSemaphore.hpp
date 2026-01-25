@@ -20,7 +20,7 @@ namespace CXXDispatchSemaphore {
 /// A dispatch_semaphore_t wrapper.
 class DispatchSemaphore final {
   public:
-    // MARK: Creation and Destruction
+    // MARK: Construction and Destruction
 
     /// Creates a new semaphore.
     /// @param value The starting value for the semaphore.
@@ -146,7 +146,7 @@ class SemaphoreGuard final {
 
 // MARK: - Implementation -
 
-// MARK: Creation and Destruction
+// MARK: Construction and Destruction
 
 inline DispatchSemaphore::DispatchSemaphore(intptr_t value)
   : semaphore_{dispatch_semaphore_create(value)} {
