@@ -7,6 +7,6 @@
 
 module CXXDispatchSemaphore {
     requires cplusplus17
-    header "dsema/DispatchSemaphore.hpp"
+    header "dsema/Semaphore.hpp"
     export *
 }
