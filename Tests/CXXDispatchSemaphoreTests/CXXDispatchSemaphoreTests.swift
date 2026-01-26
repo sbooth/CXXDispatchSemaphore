@@ -11,15 +11,15 @@ import Foundation
 
 @Suite struct CXXDispatchSemaphoreTests {
     @Test func basic() async {
-        var sema = dsema.DispatchSemaphore(0)
-        let didAcquire = sema.wait(DispatchTime.now().rawValue)
+        var semaphore = dsema.DispatchSemaphore(0)
+        let didAcquire = semaphore.wait(DispatchTime.now().rawValue)
         #expect(!didAcquire)
     }
 
     @Test func wrapped() async {
-        let dsema = DispatchSemaphore(value: 0)
-        var sema = CXXDispatchSemaphore.dsema.DispatchSemaphore(dsema)
-        let didAcquire = sema.wait(DispatchTime.now().rawValue)
+        let dispatchSemaphore = DispatchSemaphore(value: 0)
+        var semaphore = dsema.DispatchSemaphore(dispatchSemaphore)
+        let didAcquire = semaphore.wait(DispatchTime.now().rawValue)
         #expect(!didAcquire)
     }
 }
