@@ -41,7 +41,7 @@ class DispatchSemaphore final {
     /// @return A reference to this.
     DispatchSemaphore& operator=(const DispatchSemaphore& other) noexcept;
 
-    DispatchSemaphore(DispatchSemaphore&&) = delete;
+    DispatchSemaphore(DispatchSemaphore&&)            = delete;
     DispatchSemaphore& operator=(DispatchSemaphore&&) = delete;
 
     /// Releases the underlying dispatch semaphore.
@@ -73,8 +73,7 @@ class DispatchSemaphore final {
     void release() noexcept;
     bool try_acquire() noexcept;
 
-    template <class Rep, class Period>
-    bool try_acquire_for(const std::chrono::duration<Rep, Period>& rel_time);
+    template <class Rep, class Period> bool try_acquire_for(const std::chrono::duration<Rep, Period>& rel_time);
 
     template <class Clock, class Duration>
     bool try_acquire_until(const std::chrono::time_point<Clock, Duration>& abs_time);
@@ -113,7 +112,7 @@ class SemaphoreGuard final {
     /// @param semaphore A semaphore.
     SemaphoreGuard(DispatchSemaphore& semaphore, already_acquired_t /*unused*/) noexcept;
 
-    SemaphoreGuard(const SemaphoreGuard&) = delete;
+    SemaphoreGuard(const SemaphoreGuard&)            = delete;
     SemaphoreGuard& operator=(const SemaphoreGuard&) = delete;
 
     /// Constructs a semaphore guard by moving another.
@@ -218,7 +217,7 @@ inline bool DispatchSemaphore::try_acquire_for(const std::chrono::duration<Rep, 
     if (rel_time <= std::chrono::duration<Rep, Period>::zero()) {
         return wait(DISPATCH_TIME_NOW);
     }
-    const auto nsec = std::chrono::duration_cast<std::chrono::nanoseconds>(rel_time);
+    const auto nsec    = std::chrono::duration_cast<std::chrono::nanoseconds>(rel_time);
     const auto timeout = dispatch_time(DISPATCH_TIME_NOW, nsec.count());
     return wait(timeout);
 }
@@ -229,7 +228,7 @@ inline bool DispatchSemaphore::try_acquire_until(const std::chrono::time_point<C
     if (abs_time <= now) {
         return wait(DISPATCH_TIME_NOW);
     }
-    const auto nsec = std::chrono::duration_cast<std::chrono::nanoseconds>(abs_time - now);
+    const auto nsec    = std::chrono::duration_cast<std::chrono::nanoseconds>(abs_time - now);
     const auto timeout = dispatch_time(DISPATCH_TIME_NOW, nsec.count());
     return wait(timeout);
 }
@@ -254,7 +253,7 @@ inline SemaphoreGuard& SemaphoreGuard::operator=(SemaphoreGuard&& other) noexcep
             semaphore_->signal();
         }
         semaphore_ = std::exchange(other.semaphore_, nullptr);
-        acquired_ = std::exchange(other.acquired_, false);
+        acquired_  = std::exchange(other.acquired_, false);
     }
     return *this;
 }
