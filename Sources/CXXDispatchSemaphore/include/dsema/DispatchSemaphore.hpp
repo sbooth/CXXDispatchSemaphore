@@ -161,7 +161,7 @@ inline DispatchSemaphore::DispatchSemaphore(dispatch_semaphore_t _Nonnull semaph
 }
 
 inline DispatchSemaphore::DispatchSemaphore(const DispatchSemaphore &other) noexcept
-        : DispatchSemaphore(other.semaphore_) {}
+    : DispatchSemaphore(other.semaphore_) {}
 
 inline DispatchSemaphore &DispatchSemaphore::operator=(const DispatchSemaphore &other) noexcept {
     if (this != &other) {
@@ -224,16 +224,16 @@ inline bool DispatchSemaphore::try_acquire_until(const std::chrono::time_point<C
 // MARK: - SemaphoreGuard
 
 inline SemaphoreGuard::SemaphoreGuard(DispatchSemaphore &semaphore) noexcept
-        : SemaphoreGuard(semaphore, DISPATCH_TIME_FOREVER) {}
+    : SemaphoreGuard(semaphore, DISPATCH_TIME_FOREVER) {}
 
 inline SemaphoreGuard::SemaphoreGuard(DispatchSemaphore &semaphore, dispatch_time_t timeout) noexcept
-        : semaphore_{&semaphore}, acquired_{semaphore.wait(timeout)} {}
+    : semaphore_{&semaphore}, acquired_{semaphore.wait(timeout)} {}
 
 inline SemaphoreGuard::SemaphoreGuard(DispatchSemaphore &semaphore, already_acquired_t /*unused*/) noexcept
-        : semaphore_{&semaphore}, acquired_{true} {}
+    : semaphore_{&semaphore}, acquired_{true} {}
 
 inline SemaphoreGuard::SemaphoreGuard(SemaphoreGuard &&other) noexcept
-        : semaphore_{std::exchange(other.semaphore_, nullptr)}, acquired_{std::exchange(other.acquired_, false)} {}
+    : semaphore_{std::exchange(other.semaphore_, nullptr)}, acquired_{std::exchange(other.acquired_, false)} {}
 
 inline SemaphoreGuard &SemaphoreGuard::operator=(SemaphoreGuard &&other) noexcept {
     if (this != &other) {
