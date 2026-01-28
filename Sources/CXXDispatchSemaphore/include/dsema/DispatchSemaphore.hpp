@@ -237,7 +237,7 @@ inline SemaphoreGuard::SemaphoreGuard(SemaphoreGuard &&other) noexcept
 
 inline SemaphoreGuard &SemaphoreGuard::operator=(SemaphoreGuard &&other) noexcept {
     if (this != &other) {
-        if ((semaphore_ != nullptr) && acquired_) {
+        if (semaphore_ != nullptr && acquired_) {
             semaphore_->signal();
         }
         semaphore_ = std::exchange(other.semaphore_, nullptr);
@@ -247,7 +247,7 @@ inline SemaphoreGuard &SemaphoreGuard::operator=(SemaphoreGuard &&other) noexcep
 }
 
 inline SemaphoreGuard::~SemaphoreGuard() noexcept {
-    if ((semaphore_ != nullptr) && acquired_) {
+    if (semaphore_ != nullptr && acquired_) {
         semaphore_->signal();
     }
 }
