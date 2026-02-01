@@ -24,7 +24,8 @@ class Semaphore final {
 
     /// Creates a new semaphore.
     /// @param value The starting value for the semaphore.
-    /// @throw std::runtime_error if the semaphore could not be created.
+    /// @throw std::invalid_argument if value is less than zero or std::runtime_error if the semaphore could not be
+    /// created.
     explicit Semaphore(intptr_t value);
 
     /// Creates a semaphore wrapping an existing dispatch semaphore.
@@ -148,6 +149,9 @@ class SemaphoreGuard final {
 // MARK: Construction and Destruction
 
 inline Semaphore::Semaphore(intptr_t value) : semaphore_{dispatch_semaphore_create(value)} {
+    if (value < 0) {
+        throw std::invalid_argument("Semaphore starting value may not be less than zero");
+    }
     if (semaphore_ == nullptr) {
         throw std::runtime_error("Unable to create dispatch semaphore");
     }
