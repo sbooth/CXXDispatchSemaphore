@@ -17,6 +17,14 @@
 
 namespace dsema {
 
+/// Tag indicating the constructor parameter is an existing dispatch_semaphore_t.
+struct wrap_existing_t {
+    explicit wrap_existing_t() noexcept = default;
+};
+
+/// The constructor parameter is an existing dispatch_semaphore_t.
+inline constexpr wrap_existing_t wrap_existing{};
+
 /// A dispatch_semaphore_t wrapper.
 class Semaphore final {
   public:
@@ -31,7 +39,7 @@ class Semaphore final {
     /// Creates a semaphore wrapping an existing dispatch semaphore.
     /// @note The results of passing a null dispatch semaphore are undefined.
     /// @param semaphore A dispatch semaphore.
-    explicit Semaphore(dispatch_semaphore_t _Nonnull semaphore) noexcept;
+    explicit Semaphore(dispatch_semaphore_t _Nonnull semaphore, wrap_existing_t /*unused*/) noexcept;
 
     /// Creates a semaphore from an existing semaphore.
     /// @param other The semaphore to copy.
@@ -159,7 +167,8 @@ inline Semaphore::Semaphore(std::intptr_t value) {
     }
 }
 
-inline Semaphore::Semaphore(dispatch_semaphore_t _Nonnull semaphore) noexcept : semaphore_{semaphore} {
+inline Semaphore::Semaphore(dispatch_semaphore_t _Nonnull semaphore, wrap_existing_t /*unused*/) noexcept
+    : semaphore_{semaphore} {
     assert(semaphore_ != nullptr);
 #if !__has_feature(objc_arc)
     dispatch_retain(semaphore_);
