@@ -18,7 +18,7 @@ import Foundation
 
     @Test func wrapped() async {
         let dispatchSemaphore = DispatchSemaphore(value: 0)
-        var semaphore = dsema.Semaphore(dispatchSemaphore)
+        var semaphore = dsema.Semaphore(dispatchSemaphore, dsema.wrap_existing_t())
         let didAcquire = semaphore.wait(DispatchTime.now().rawValue)
         #expect(!didAcquire)
     }

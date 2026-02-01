@@ -17,6 +17,14 @@
 
 namespace dsema {
 
+/// Tag type used to select the constructor that wraps an existing dispatch_semaphore_t.
+struct wrap_existing_t {
+    explicit wrap_existing_t() noexcept = default;
+};
+
+/// Indicates the constructor should wrap an existing dispatch_semaphore_t.
+inline constexpr wrap_existing_t wrap_existing{};
+
 /// A dispatch_semaphore_t wrapper.
 class Semaphore final {
   public:
@@ -31,7 +39,7 @@ class Semaphore final {
     /// Creates a semaphore wrapping an existing dispatch semaphore.
     /// @note The results of passing a null dispatch semaphore are undefined.
     /// @param semaphore A dispatch semaphore.
-    explicit Semaphore(dispatch_semaphore_t _Nonnull semaphore) noexcept;
+    Semaphore(dispatch_semaphore_t _Nonnull semaphore, wrap_existing_t /*unused*/) noexcept;
 
     /// Creates a semaphore from an existing semaphore.
     /// @param other The semaphore to copy.
@@ -86,7 +94,7 @@ class Semaphore final {
 
 // MARK: SemaphoreGuard
 
-/// Tag indicating that a semaphore has already been acquired and that the constructor should not wait.
+/// Tag type indicating a semaphore has already been acquired and the constructor should not wait.
 struct already_acquired_t {
     explicit already_acquired_t() noexcept = default;
 };
@@ -159,14 +167,15 @@ inline Semaphore::Semaphore(std::intptr_t value) {
     }
 }
 
-inline Semaphore::Semaphore(dispatch_semaphore_t _Nonnull semaphore) noexcept : semaphore_{semaphore} {
+inline Semaphore::Semaphore(dispatch_semaphore_t _Nonnull semaphore, wrap_existing_t /*unused*/) noexcept
+    : semaphore_{semaphore} {
     assert(semaphore_ != nullptr);
 #if !__has_feature(objc_arc)
     dispatch_retain(semaphore_);
 #endif /* !__has_feature(objc_arc) */
 }
 
-inline Semaphore::Semaphore(const Semaphore &other) noexcept : Semaphore(other.semaphore_) {}
+inline Semaphore::Semaphore(const Semaphore &other) noexcept : Semaphore(other.semaphore_, wrap_existing) {}
 
 inline Semaphore &Semaphore::operator=(const Semaphore &other) noexcept {
     if (this != &other) {
