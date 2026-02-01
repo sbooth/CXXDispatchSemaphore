@@ -94,7 +94,7 @@ class Semaphore final {
 
 // MARK: SemaphoreGuard
 
-/// Tag type indicating that a semaphore has already been acquired and that the constructor should not wait.
+/// Tag type indicating a semaphore has already been acquired and the constructor should not wait.
 struct already_acquired_t {
     explicit already_acquired_t() noexcept = default;
 };
