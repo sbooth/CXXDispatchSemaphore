@@ -17,12 +17,12 @@
 
 namespace dsema {
 
-/// Tag indicating the constructor parameter is an existing dispatch_semaphore_t.
+/// Tag type used to select the constructor that wraps an existing dispatch_semaphore_t.
 struct wrap_existing_t {
     explicit wrap_existing_t() noexcept = default;
 };
 
-/// The constructor parameter is an existing dispatch_semaphore_t.
+/// Indicates the constructor should wrap an existing dispatch_semaphore_t.
 inline constexpr wrap_existing_t wrap_existing{};
 
 /// A dispatch_semaphore_t wrapper.
@@ -94,7 +94,7 @@ class Semaphore final {
 
 // MARK: SemaphoreGuard
 
-/// Tag indicating that a semaphore has already been acquired and that the constructor should not wait.
+/// Tag type indicating that a semaphore has already been acquired and that the constructor should not wait.
 struct already_acquired_t {
     explicit already_acquired_t() noexcept = default;
 };
