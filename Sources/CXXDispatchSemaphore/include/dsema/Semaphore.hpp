@@ -175,7 +175,7 @@ inline Semaphore::Semaphore(dispatch_semaphore_t _Nonnull semaphore, wrap_existi
 #endif /* !__has_feature(objc_arc) */
 }
 
-inline Semaphore::Semaphore(const Semaphore &other) noexcept : Semaphore(other.semaphore_) {}
+inline Semaphore::Semaphore(const Semaphore &other) noexcept : Semaphore(other.semaphore_, wrap_existing) {}
 
 inline Semaphore &Semaphore::operator=(const Semaphore &other) noexcept {
     if (this != &other) {
