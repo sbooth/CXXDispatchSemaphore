@@ -39,7 +39,7 @@ class Semaphore final {
     /// Creates a semaphore wrapping an existing dispatch semaphore.
     /// @note The results of passing a null dispatch semaphore are undefined.
     /// @param semaphore A dispatch semaphore.
-    explicit Semaphore(dispatch_semaphore_t _Nonnull semaphore, wrap_existing_t /*unused*/) noexcept;
+    Semaphore(dispatch_semaphore_t _Nonnull semaphore, wrap_existing_t /*unused*/) noexcept;
 
     /// Creates a semaphore from an existing semaphore.
     /// @param other The semaphore to copy.
