@@ -148,10 +148,12 @@ class SemaphoreGuard final {
 
 // MARK: Construction and Destruction
 
-inline Semaphore::Semaphore(intptr_t value) : semaphore_{dispatch_semaphore_create(value)} {
+inline Semaphore::Semaphore(intptr_t value) {
     if (value < 0) {
         throw std::invalid_argument("Semaphore starting value may not be less than zero");
     }
+
+    semaphore_ = dispatch_semaphore_create(value);
     if (semaphore_ == nullptr) {
         throw std::runtime_error("Unable to create dispatch semaphore");
     }
