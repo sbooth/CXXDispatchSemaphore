@@ -228,11 +228,9 @@ template <class Clock, class Duration>
 inline bool Semaphore::try_acquire_until(const std::chrono::time_point<Clock, Duration> &abs_time) {
     const auto now = Clock::now();
     if (abs_time <= now) {
-        return wait(DISPATCH_TIME_NOW);
+        return try_acquire();
     }
-    const auto nsec = std::chrono::duration_cast<std::chrono::nanoseconds>(abs_time - now);
-    const auto timeout = dispatch_time(DISPATCH_TIME_NOW, nsec.count());
-    return wait(timeout);
+    return try_acquire_for(abs_time - now);
 }
 
 // MARK: - SemaphoreGuard
