@@ -228,7 +228,7 @@ template <class Clock, class Duration>
 inline bool Semaphore::try_acquire_until(const std::chrono::time_point<Clock, Duration> &abs_time) {
     const auto now = Clock::now();
     if (abs_time <= now) {
-        return try_acquire;
+        return try_acquire();
     }
     return try_acquire_for(abs_time - now);
 }
