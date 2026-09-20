@@ -204,13 +204,13 @@ inline bool Semaphore::wait(dispatch_time_t timeout) noexcept {
 
 inline bool Semaphore::signal() noexcept { return dispatch_semaphore_signal(semaphore_) != 0; }
 
-inline void Semaphore::wait() noexcept { wait(DISPATCH_TIME_FOREVER); }
+inline void Semaphore::wait() noexcept { (void)wait(DISPATCH_TIME_FOREVER); }
 
 // MARK: std::counting_semaphore Compatibility
 
-inline void Semaphore::acquire() noexcept { wait(); }
+inline void Semaphore::acquire() noexcept { (void)wait(); }
 
-inline void Semaphore::release() noexcept { signal(); }
+inline void Semaphore::release() noexcept { (void)signal(); }
 
 inline bool Semaphore::try_acquire() noexcept { return wait(DISPATCH_TIME_NOW); }
 
