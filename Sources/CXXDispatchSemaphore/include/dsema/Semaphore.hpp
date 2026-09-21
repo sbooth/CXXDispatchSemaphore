@@ -217,7 +217,7 @@ inline bool Semaphore::try_acquire() noexcept { return wait(DISPATCH_TIME_NOW); 
 template <class Rep, class Period>
 inline bool Semaphore::try_acquire_for(const std::chrono::duration<Rep, Period> &rel_time) {
     if (rel_time <= std::chrono::duration<Rep, Period>::zero()) {
-        return wait(DISPATCH_TIME_NOW);
+        return try_acquire();
     }
     const auto nsec = std::chrono::duration_cast<std::chrono::nanoseconds>(rel_time);
     const auto timeout = dispatch_time(DISPATCH_TIME_NOW, nsec.count());
